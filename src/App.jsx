@@ -30,10 +30,10 @@ const scanTable = async (partType) => {
 
   try {
     const data = await dbClient.send(new ScanCommand(params));
-    return data.Items; // Return the scanned items
+    return data.Items;
   } catch (err) {
     console.log(err);
-    return null; // Return null or handle the error as needed
+    return null;
   }
 };
 
@@ -77,15 +77,16 @@ const App = () => {
   const handleCheckCompatibility = () => {
     const selectedCpuObj = cpuData.find((cpu) => cpu.name.S === selectedCpu);
     const selectedGpuObj = gpuData.find((gpu) => gpu.name.S === selectedGpu);
+    const selectedRamObj = ramData.find((ram) => ram.capacity.S === selectedRAM);
 
-    if (selectedCpuObj && selectedGpuObj) {
+    if (selectedCpuObj && selectedGpuObj && selectedRamObj) {
       const cpuSocket = selectedCpuObj.socket.S;
-      const gpuLength = selectedGpuObj.length.N; // Assuming length is a number in your data
       const gpuName = selectedGpuObj.name.S;
-
+      const ramCapacity = selectedRamObj.capacity.S;    
       if (
-        (cpuSocket === "LGA1200" || cpuSocket === "AM4") &&
-        (gpuLength === 285 || gpuName === "NVIDIA GeForce RTX 3080")
+        (cpuSocket === "LGA1200", "AM4") &&
+        (gpuName === "AMD Radeon RX 6800 XT", "NVIDIA GeForce RTX 3080") &&
+        (ramCapacity === "32 GB (2 x 16GB)", "16 GB (2 x 8GB)")
       ) {
         setCompatibilityResult("Compatible!");
         setWarning("");
@@ -97,11 +98,12 @@ const App = () => {
       setCompatibilityResult("");
       setWarning("Please select all hardware components.");
     }
+
   };
 
   return (
-    <Container sx={{ backgroundColor: "#66ff66", padding: "20px", borderRadius: "8px"}}>
-      <Typography variant="h4" fontWeight= "bold" component="div" mt={3}>
+    <Container sx={{ backgroundColor: "#66ff66", padding: "20px", borderRadius: "8px" }}>
+      <Typography variant="h4" fontWeight="bold" component="div" mt={3}>
         PC Hardware Compatibility Checker
       </Typography>
 
