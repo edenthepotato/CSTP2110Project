@@ -1,81 +1,176 @@
-import { useState } from 'react';
-import './App.css';
-import hardwareData from './hardware';
+import { useState, useEffect } from "react";
+import "./App.css";
+import HardwareSelector from "./components/hardwareSelector";
+import { Container, Typography, Button, Box, Grid } from "@mui/material";
 import {
-  Container,
-  Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Button,
-  Box,
-} from '@mui/material';
+  DynamoDBClient,
+  GetItemCommand,
+  ScanCommand,
+} from "@aws-sdk/client-dynamodb";
+
+const accessKey = import.meta.env.VITE_APP_ACCESSKEY;
+const secretAccessKey = import.meta.env.VITE_APP_SECRET_ACCESSKEY;
+const tableName = "PC-Part-Picker";
+
+const dbClient = new DynamoDBClient({
+  region: "us-west-2",
+  credentials: {
+    accessKeyId: accessKey,
+    secretAccessKey: secretAccessKey,
+  },
+});
+
+const getItem = async (id, type) => {
+  const params = {
+    TableName: tableName,
+    Key: {
+      PartID: { N: id },
+      PartType: { S: type },
+    },
+  };
+
+  try {
+    const data = await dbClient.send(new GetItemCommand(params));
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const scanTable = async (partType) => {
+  const params = {
+    TableName: tableName,
+    FilterExpression: "PartType = :partType",
+    ExpressionAttributeValues: {
+      ":partType": { S: partType },
+    },
+  };
+
+  try {
+    const data = await dbClient.send(new ScanCommand(params));
+    return data.Items; // Return the scanned items
+  } catch (err) {
+    console.log(err);
+    return null; // Return null or handle the error as needed
+  }
+};
+
+const gpuData = await scanTable("GPU");
 
 const App = () => {
-  const [selectedCpu, setSelectedCpu] = useState('');
-  const [selectedGpu, setSelectedGpu] = useState('');
-  const [compatibilityResult, setCompatibilityResult] = useState('');
+  const [selectedCpu, setSelectedCpu] = useState("");
+  const [selectedGpu, setSelectedGpu] = useState("");
+  const [selectedCase, setSelectedCase] = useState("");
+  const [selectedCooler, setSelectedCooler] = useState("");
+  const [selectedMotherboard, setSelectedMotherboard] = useState("");
+  const [selectedPowerSupply, setSelectedPowerSupply] = useState("");
+  const [selectedRAM, setSelectedRAM] = useState("");
+  const [selectedStorage, setSelectedStorage] = useState("");
+
+  const [cpuData, setCpuData] = useState([]);
+  const [gpuData, setGpuData] = useState([]);
+  const [caseData, setCaseData] = useState([]);
+  const [coolerData, setCoolerData] = useState([]);
+  const [motherboardData, setMotherboardData] = useState([]);
+  const [powerSupplyData, setPowerSupplyData] = useState([]);
+  const [ramData, setRamData] = useState([]);
+  const [storageData, setStorageData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setCpuData(await scanTable("CPU"));
+      setGpuData(await scanTable("GPU"));
+      setCaseData(await scanTable("Case"));
+      setCoolerData(await scanTable("Cooler"));
+      setMotherboardData(await scanTable("Motherboard"));
+      setPowerSupplyData(await scanTable("PowerSupply"));
+      setRamData(await scanTable("RAM"));
+      setStorageData(await scanTable("Storage"));
+    };
+
+    fetchData();
+  }, []);
+
+  const [compatibilityResult, setCompatibilityResult] = useState("");
+  const [warning, setWarning] = useState("");
 
   const handleCheckCompatibility = () => {
-    const cpu = hardwareData.cpu.find((c) => c.name === selectedCpu);
-    const gpu = hardwareData.gpu.find((g) => g.name === selectedGpu);
-  
-    if (cpu && gpu) {
-      if ((cpu.socket === 'LGA1200' || cpu.socket === 'AM4') && (gpu.length === '285 mm' || gpu.name === 'NVIDIA GeForce RTX 3080')) {
-        setCompatibilityResult('Compatible!');
+    const selectedCpuObj = cpuData.find((cpu) => cpu.name.S === selectedCpu);
+    const selectedGpuObj = gpuData.find((gpu) => gpu.name.S === selectedGpu);
+
+    if (selectedCpuObj && selectedGpuObj) {
+      const cpuSocket = selectedCpuObj.socket.S;
+      const gpuLength = selectedGpuObj.length.N; // Assuming length is a number in your data
+      const gpuName = selectedGpuObj.name.S;
+
+      if (
+        (cpuSocket === "LGA1200" || cpuSocket === "AM4") &&
+        (gpuLength === 285 || gpuName === "NVIDIA GeForce RTX 3080")
+      ) {
+        setCompatibilityResult("Compatible!");
       } else {
-        setCompatibilityResult('Not Compatible!');
+        setCompatibilityResult("Not Compatible!");
       }
+    } else {
+      setCompatibilityResult("");
+      setWarning("Please select all hardware components.");
     }
   };
-  
 
   return (
-    <Container>
+    <Container sx={{ backgroundColor: "grey", padding: "20px", borderRadius: "8px" }}>
       <Typography variant="h4" component="div" mt={3}>
         PC Hardware Compatibility Checker
       </Typography>
-      <FormControl
-        fullWidth
-        variant="outlined"
-        sx={{ mt: 2, backgroundColor: 'white' }} // Set background color to white
-      >
-        <InputLabel id="cpu-select-label">Select CPU</InputLabel>
-        <Select
-          label="Select CPU"
-          labelId="cpu-select-label"
-          id="cpu-select"
-          value={selectedCpu}
-          onChange={(e) => setSelectedCpu(e.target.value)}
-        >
-          {hardwareData.cpu.map((cpu) => (
-            <MenuItem key={cpu.name} value={cpu.name}>
-              {cpu.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl
-        fullWidth
-        variant="outlined"
-        sx={{ mt: 2, backgroundColor: 'white' }} // Set background color to white
-      >
-        <InputLabel id="gpu-select-label">Select GPU</InputLabel>
-        <Select
-          label="Select GPU"
-          labelId="gpu-select-label"
-          id="gpu-select"
-          value={selectedGpu}
-          onChange={(e) => setSelectedGpu(e.target.value)}
-        >
-          {hardwareData.gpu.map((gpu) => (
-            <MenuItem key={gpu.name} value={gpu.name}>
-              {gpu.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+
+      <HardwareSelector
+        label="CPU"
+        selectedHardware={selectedCpu}
+        onChange={setSelectedCpu}
+        hardwareData={cpuData}
+      />
+
+      <HardwareSelector
+        label="GPU"
+        selectedHardware={selectedGpu}
+        onChange={setSelectedGpu}
+        hardwareData={gpuData}
+      />
+
+      <HardwareSelector
+        label="Motherboard"
+        selectedHardware={selectedMotherboard}
+        onChange={setSelectedMotherboard}
+        hardwareData={motherboardData}
+      />
+
+      <HardwareSelector
+        label="Case"
+        selectedHardware={selectedCase}
+        onChange={setSelectedCase}
+        hardwareData={caseData}
+      />
+
+      <HardwareSelector
+        label="Cooler"
+        selectedHardware={selectedCooler}
+        onChange={setSelectedCooler}
+        hardwareData={coolerData}
+      />
+
+      <HardwareSelector
+        label="RAM"
+        selectedHardware={selectedRAM}
+        onChange={setSelectedRAM}
+        hardwareData={ramData}
+      />
+
+      <HardwareSelector
+        label="Storage"
+        selectedHardware={selectedStorage}
+        onChange={setSelectedStorage}
+        hardwareData={storageData}
+      />
+
       <Button
         variant="contained"
         color="primary"
@@ -84,6 +179,15 @@ const App = () => {
       >
         Check Compatibility
       </Button>
+
+      {warning && (
+        <Box mt={2}>
+          <Typography variant="h6" color="error">
+            {warning}
+          </Typography>
+        </Box>
+      )}
+
       {compatibilityResult && (
         <Box mt={2}>
           <Typography variant="h6">{compatibilityResult}</Typography>
