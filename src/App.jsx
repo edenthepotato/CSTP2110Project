@@ -154,6 +154,13 @@ const App = () => {
         hardwareData={storageData}
       />
 
+      <HardwareSelector
+        label="Power Supply"
+        selectedHardware={selectedPowerSupply}
+        onChange={setSelectedPowerSupply}
+        hardwareData={powerSupplyData}
+      />
+
       <Button
         variant="contained"
         color="primary"
