@@ -4,7 +4,6 @@ import HardwareSelector from "./components/hardwareSelector";
 import { Container, Typography, Button, Box, Grid } from "@mui/material";
 import {
   DynamoDBClient,
-  GetItemCommand,
   ScanCommand,
 } from "@aws-sdk/client-dynamodb";
 
@@ -19,22 +18,6 @@ const dbClient = new DynamoDBClient({
     secretAccessKey: secretAccessKey,
   },
 });
-
-const getItem = async (id, type) => {
-  const params = {
-    TableName: tableName,
-    Key: {
-      PartID: { N: id },
-      PartType: { S: type },
-    },
-  };
-
-  try {
-    const data = await dbClient.send(new GetItemCommand(params));
-  } catch (err) {
-    console.log(err);
-  }
-};
 
 const scanTable = async (partType) => {
   const params = {
@@ -53,8 +36,6 @@ const scanTable = async (partType) => {
     return null; // Return null or handle the error as needed
   }
 };
-
-const gpuData = await scanTable("GPU");
 
 const App = () => {
   const [selectedCpu, setSelectedCpu] = useState("");
@@ -107,8 +88,10 @@ const App = () => {
         (gpuLength === 285 || gpuName === "NVIDIA GeForce RTX 3080")
       ) {
         setCompatibilityResult("Compatible!");
+        setWarning("");
       } else {
         setCompatibilityResult("Not Compatible!");
+        setWarning("");
       }
     } else {
       setCompatibilityResult("");
@@ -117,8 +100,8 @@ const App = () => {
   };
 
   return (
-    <Container sx={{ backgroundColor: "grey", padding: "20px", borderRadius: "8px" }}>
-      <Typography variant="h4" component="div" mt={3}>
+    <Container sx={{ backgroundColor: "#66ff66", padding: "20px", borderRadius: "8px"}}>
+      <Typography variant="h4" fontWeight= "bold" component="div" mt={3}>
         PC Hardware Compatibility Checker
       </Typography>
 
