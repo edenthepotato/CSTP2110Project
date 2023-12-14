@@ -81,7 +81,7 @@ const App = () => {
     const selectedCpuCoolerObj = coolerData.find((cooler) => cooler.name === selectedCooler);
     const selectedPowerSupplyObj = powerSupplyData.find((powerSupply) => powerSupply.wattage === selectedPowerSupply);
     const selectedStorageObj = storageData.find((storage) => storage.capacity === selectedStorage);
-
+  
     if (selectedCpuObj && selectedGpuObj && selectedRamObj && selectedCpuCoolerObj && selectedPowerSupplyObj && selectedStorageObj) {
       const cpuSocket = selectedCpuObj.socket;
       const gpuName = selectedGpuObj.name;
@@ -89,7 +89,7 @@ const App = () => {
       const cpuCooler = selectedCpuCoolerObj.name;
       const psuWattage = selectedPowerSupplyObj.wattage;
       const storageCapacity = selectedStorageObj.capacity;
-
+  
       // Intel
       if (
         cpuSocket === "LGA1200" &&
@@ -109,7 +109,7 @@ const App = () => {
       setCompatibilityResult("");
       setWarning("Please select all hardware components.");
     }
-
+  
     console.log("Selected CPU:", selectedCpu);
     console.log("Selected GPU:", selectedGpu);
     console.log("Selected RAM:", selectedRAM);
@@ -174,13 +174,13 @@ const App = () => {
         onChange={setSelectedStorage}
         hardwareData={storageData}
       />
+
       <HardwareSelector
-        label="PowerSupply"
+        label="Power Supply"
         selectedHardware={selectedPowerSupply}
-        onChange={setSelectedPowerSupply}
+        onChange={(value) => setSelectedPowerSupply(value)}
         hardwareData={powerSupplyData}
       />
-
 
       <Button
         variant="contained"
