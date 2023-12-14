@@ -102,6 +102,21 @@ const App = () => {
         setCompatibilityResult("Not Compatible!");
         setWarning(`Debug: psuWattage: ${psuWattage}, selectedPowerSupply: ${selectedPowerSupply}`);
       }
+      //AMD
+      if (
+        cpuSocket === "AM4" &&
+        (gpuName === "NVIDIA GeForce RTX 3080" || gpuName === "AMD Radeon RX 6800 XT") &&
+        (ramCapacity === "32 GB (2 x 16GB)" || ramCapacity === "16 GB (2 x 8GB)") &&
+        (cpuCooler === "Corsair H100i RGB Platinum SE" || cpuCooler === "Noctua NH-U12S") &&
+        (psuWattage === 850 || psuWattage === 750) &&
+        storageCapacity === "1 TB"
+      ) {
+        setCompatibilityResult("Compatible!");
+        setWarning("");
+      } else {
+        setCompatibilityResult("Not Compatible!");
+        setWarning(`Debug: psuWattage: ${psuWattage}, selectedPowerSupply: ${selectedPowerSupply}`);
+      }
     } else {
       setCompatibilityResult("");
       setWarning("Please select all hardware components.");
