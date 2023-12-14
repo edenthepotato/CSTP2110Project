@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import HardwareSelector from "./components/hardwareSelector";
-import { Container, Typography, Button, Box, Grid } from "@mui/material";
-import {
-  DynamoDBClient,
-  ScanCommand,
-} from "@aws-sdk/client-dynamodb";
+import { Container, Typography, Button, Box } from "@mui/material";
+import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
 
-const accessKey = import.meta.env.VITE_APP_ACCESSKEY;
+const accessKey = import.meta.env.VITE_APP_ACCESSKEY; // Use process.env instead of import.meta.env
 const secretAccessKey = import.meta.env.VITE_APP_SECRET_ACCESSKEY;
 const tableName = "PC-Part-Picker";
 
@@ -43,7 +40,7 @@ const App = () => {
   const [selectedCase, setSelectedCase] = useState("");
   const [selectedCooler, setSelectedCooler] = useState("");
   const [selectedMotherboard, setSelectedMotherboard] = useState("");
-  const [selectedPowerSupply, setSelectedPowerSupply] = useState("");
+  const [selectedPowerSupply, setSelectedPowerSupply] = useState(""); 
   const [selectedRAM, setSelectedRAM] = useState("");
   const [selectedStorage, setSelectedStorage] = useState("");
 
