@@ -100,7 +100,7 @@ const App = () => {
         setWarning("");
       } else {
         setCompatibilityResult("Not Compatible!");
-        setWarning(`Debug: psuWattage: ${psuWattage}, selectedPowerSupply: ${selectedPowerSupply}`);
+        
       }
       //AMD
       if (
@@ -115,7 +115,7 @@ const App = () => {
         setWarning("");
       } else {
         setCompatibilityResult("Not Compatible!");
-        setWarning(`Debug: psuWattage: ${psuWattage}, selectedPowerSupply: ${selectedPowerSupply}`);
+        
       }
     } else {
       setCompatibilityResult("");
