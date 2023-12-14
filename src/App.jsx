@@ -75,31 +75,49 @@ const App = () => {
   const [warning, setWarning] = useState("");
 
   const handleCheckCompatibility = () => {
-    const selectedCpuObj = cpuData.find((cpu) => cpu.name.S === selectedCpu);
-    const selectedGpuObj = gpuData.find((gpu) => gpu.name.S === selectedGpu);
-    const selectedRamObj = ramData.find((ram) => ram.capacity.S === selectedRAM);
-    
-
-    if (selectedCpuObj && selectedGpuObj && selectedRamObj) {
-      const cpuSocket = selectedCpuObj.socket.S;
-      const gpuName = selectedGpuObj.name.S;
-      const ramCapacity = selectedRamObj.capacity.S;    
+    const selectedCpuObj = cpuData.find((cpu) => cpu.socket === selectedCpu);
+    const selectedGpuObj = gpuData.find((gpu) => gpu.name === selectedGpu);
+    const selectedRamObj = ramData.find((ram) => ram.capacity === selectedRAM);
+    const selectedCpuCoolerObj = coolerData.find((cooler) => cooler.name === selectedCooler);
+    const selectedPowerSupplyObj = powerSupplyData.find((powerSupply) => powerSupply.wattage === selectedPowerSupply);
+    const selectedStorageObj = storageData.find((storage) => storage.capacity === selectedStorage);
+  
+    if (selectedCpuObj && selectedGpuObj && selectedRamObj && selectedCpuCoolerObj && selectedPowerSupplyObj && selectedStorageObj) {
+      const cpuSocket = selectedCpuObj.socket;
+      const gpuName = selectedGpuObj.name;
+      const ramCapacity = selectedRamObj.capacity;
+      const cpuCooler = selectedCpuCoolerObj.name;
+      const psuWattage = selectedPowerSupplyObj.wattage;
+      const storageCapacity = selectedStorageObj.capacity;
+  
+      // Intel
       if (
-        (cpuSocket === "LGA1200" || cpuSocket === "AM4") &&
-        (gpuName === "AMD Radeon RX 6800 XT" || gpuName === "NVIDIA GeForce RTX 3080") &&
-        (ramCapacity === "32 GB (2 x 16GB)" || ramCapacity === "16 GB (2 x 8GB)")
+        cpuSocket === "LGA1200" &&
+        (gpuName === "NVIDIA GeForce RTX 3080" || gpuName === "AMD Radeon RX 6800 XT") &&
+        (ramCapacity === "32 GB (2 x 16GB)" || ramCapacity === "16 GB (2 x 8GB)") &&
+        (cpuCooler === "Corsair H100i RGB Platinum SE" || cpuCooler === "Noctua NH-U12S") &&
+        (psuWattage === 850 || psuWattage === 750) &&
+        storageCapacity === "1 TB"
       ) {
         setCompatibilityResult("Compatible!");
         setWarning("");
       } else {
         setCompatibilityResult("Not Compatible!");
-        setWarning("");
+        setWarning(`Debug: psuWattage: ${psuWattage}, selectedPowerSupply: ${selectedPowerSupply}`);
       }
     } else {
       setCompatibilityResult("");
       setWarning("Please select all hardware components.");
     }
-
+  
+    console.log("Selected CPU:", selectedCpu);
+    console.log("Selected GPU:", selectedGpu);
+    console.log("Selected RAM:", selectedRAM);
+    console.log("Selected PSU:", selectedPowerSupply);
+    console.log("Selected Case:", selectedCase);
+    console.log("Selected Cooler:", selectedCooler);
+    console.log("Selected Storage:", selectedStorage);
+    console.log("Selected Motherboard:", selectedMotherboard);
   };
 
   return (
@@ -160,7 +178,7 @@ const App = () => {
       <HardwareSelector
         label="Power Supply"
         selectedHardware={selectedPowerSupply}
-        onChange={setSelectedPowerSupply}
+        onChange={(value) => setSelectedPowerSupply(value)}
         hardwareData={powerSupplyData}
       />
 
